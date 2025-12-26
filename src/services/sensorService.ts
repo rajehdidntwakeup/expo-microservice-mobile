@@ -12,8 +12,12 @@ export async function getSensors(): Promise<Sensor[]> {
     },
   });
 
-  if (!resp.ok) {
+  if (!resp.ok && resp.status !== 204) {
     throw new Error(`Failed to load sensors (${resp.status})`);
+  }
+
+  if (resp.status === 204) {
+    return [];
   }
 
   const data = await resp.json();
@@ -31,6 +35,7 @@ export async function createSensor(payload: {
   active: boolean;
 }): Promise<Sensor> {
   const token = await storage.getToken();
+    console.log(token);
   const resp = await fetch(`${API_BASE_URL}/sensors`, {
     method: 'POST',
     headers: {

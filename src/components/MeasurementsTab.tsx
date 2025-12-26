@@ -116,11 +116,14 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
 
     setLoading(true);
     try {
+        console.log(formData.timestamp);
+        console.log(new Date().toISOString());
+        console.log(new Date(formData.timestamp).toISOString());
       await MeasurementService.createMeasurement({
         sensorId: formData.sensorId,
         temperature: formData.temperature ? parseFloat(formData.temperature) : undefined,
         humidity: formData.humidity ? parseFloat(formData.humidity) : undefined,
-        timestamp: formData.timestamp,
+        timestamp: new Date().toISOString(),
       });
       await loadMeasurements();
       setShowAddModal(false);
