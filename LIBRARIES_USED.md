@@ -4,14 +4,12 @@
 
 This document provides a comprehensive comparison between the libraries used in the original React web application and their React Native equivalents in the converted mobile application.
 
-## Core Framework
-
-| Web (Original) | Mobile (Converted) | Notes |
-|----------------|-------------------|-------|
-| React 18.3.1 | React 19.1.0 | Updated to latest stable version |
-| React DOM 18.3.1 | React Native 0.81.5 | React Native replaces React DOM for native rendering |
-| Vite 6.3.5 | Expo ~54.0.25 | Expo provides build tooling and development server |
-| TypeScript 5.9.3 | TypeScript ~5.9.2 | Maintained TypeScript for type safety |
+| Core Framework | Web (Original) | Mobile (Converted) | Notes |
+|----------------|----------------|-------------------|-------|
+| React | 18.3.1 | 19.1.0 | Updated to latest stable version |
+| Rendering | React DOM 18.3.1 | React Native 0.81.3 | Native rendering engine |
+| Tooling | Vite 6.3.5 | Expo ~54.0.26 | Expo build tooling |
+| Language | TypeScript 5.9.3 | TypeScript ~5.9.2 | Maintained TypeScript |
 
 ## UI Component Libraries
 
@@ -42,6 +40,9 @@ This document provides a comprehensive comparison between the libraries used in 
   - FlatList (for efficient list rendering)
   - ScrollView (for scrollable content)
   - ActivityIndicator (for loading states)
+- **Expo Modules**
+  - expo-linear-gradient (for background effects)
+  - expo-status-bar (for system bar styling)
 
 **Reason for Change**: Radix UI is web-specific and relies on DOM manipulation. React Native requires native components that bridge to iOS and Android native UI elements. Custom components were built to match the original design while using native mobile patterns.
 
@@ -79,7 +80,6 @@ This document provides a comprehensive comparison between the libraries used in 
 | CSS transitions | Native transitions | Platform-appropriate animations |
 | Complex animations | Simplified animations | Battery and performance optimization |
 
-**Reason for Change**: Motion/Framer Motion is designed for web and uses CSS-based animations. React Native provides its own Animated API and Reanimated library for performant native animations. Complex decorative animations were simplified to conserve battery life.
 
 ## Navigation
 
@@ -87,10 +87,9 @@ This document provides a comprehensive comparison between the libraries used in 
 |----------------|-------------------|-------|
 | Conditional rendering | @react-navigation/native ^7.1.24 | Industry-standard mobile navigation |
 | State-based routing | @react-navigation/native-stack ^7.8.5 | Stack-based navigation pattern |
-| N/A | react-native-screens ^4.18.0 | Native screen optimization |
+| N/A | react-native-screens ~4.16.0 | Native screen optimization |
 | N/A | react-native-safe-area-context ^5.6.2 | Safe area handling for notches |
 
-**Reason for Change**: Web applications use URL-based routing, while mobile apps use stack-based navigation that matches platform conventions. React Navigation provides the standard solution for React Native apps.
 
 ## Storage
 
@@ -122,7 +121,6 @@ const token = await AsyncStorage.getItem('@auth_token');
 - @expo/vector-icons (included with Expo)
 - react-native-svg for custom SVG icons
 
-**Reason for Change**: Lucide React provides SVG icons for web. For simplicity, the mobile app uses emoji characters which are resolution-independent and require no additional setup. For production apps, vector icon libraries would be recommended.
 
 ## Notifications
 
@@ -153,32 +151,20 @@ Alert.alert('Success', 'Login successful! Welcome back to your account.');
 | react-hook-form ^7.55.0 | useState hooks | Simpler form state management |
 | Complex validation | Manual validation | Direct validation logic |
 
-**Reason for Change**: React Hook Form is optimized for web forms with DOM manipulation. For the mobile app's relatively simple forms, direct useState management provides better control and transparency.
 
 ## Data Visualization
 
 | Web (Original) | Mobile (Converted) | Notes |
 |----------------|-------------------|-------|
-| recharts ^2.15.2 | Not implemented | Charts removed in initial version |
+| recharts ^2.15.2 | victory-native ^36.7.1 | Industry-standard native charting |
 
-**Alternative Options** (for future implementation):
-- react-native-chart-kit
-- victory-native
-- react-native-svg-charts
-- Custom canvas-based charts
-
-**Reason for Change**: Recharts is web-specific and relies on SVG rendering in the browser. The mobile version can implement charts using React Native-compatible libraries when needed.
 
 ## Carousel
 
 | Web (Original) | Mobile (Converted) | Notes |
 |----------------|-------------------|-------|
-| embla-carousel-react ^8.6.0 | Not implemented | Carousel not needed in mobile UI |
+| embla-carousel-react ^8.6.0 | react-native-reanimated ^4.1.5 | Custom carousel using Reanimated |
 
-**Alternative Options** (if needed):
-- react-native-snap-carousel
-- react-native-reanimated-carousel
-- FlatList with horizontal scrolling
 
 ## Gradients
 
@@ -235,9 +221,10 @@ These libraries are required for React Native but have no web equivalent:
 | Library | Version | Purpose |
 |---------|---------|---------|
 | react-native-reanimated | ^4.1.5 | High-performance animations |
-| react-native-screens | ^4.18.0 | Native screen optimization |
+| react-native-screens | ~4.16.0 | Native screen optimization |
 | react-native-safe-area-context | ^5.6.2 | Safe area handling |
 | expo-status-bar | ~3.0.8 | Status bar styling |
+| react-native-svg | ^15.8.0 | SVG support (required for Victory Native) |
 
 ## Removed Dependencies
 
@@ -246,8 +233,8 @@ These web-specific libraries were removed as they have no mobile equivalent:
 - All @radix-ui packages (30+ packages)
 - motion (Framer Motion)
 - sonner
-- recharts
-- embla-carousel-react
+- recharts (replaced by victory-native)
+- embla-carousel-react (replaced by custom Reanimated implementation)
 - react-day-picker
 - cmdk (command menu)
 - input-otp
@@ -259,9 +246,9 @@ These web-specific libraries were removed as they have no mobile equivalent:
 
 | Metric | Web (Original) | Mobile (Converted) | Change |
 |--------|---------------|-------------------|--------|
-| Total dependencies | 48 | 13 | -73% |
-| Dev dependencies | 6 | 2 | -67% |
-| Total packages | 54 | 15 | -72% |
+| Total dependencies | 48 | 17 | -64% |
+| Dev dependencies | 6 | 3 | -50% |
+| Total packages | 54 | 20 | -63% |
 | Approximate bundle size | ~2.5 MB | ~1.8 MB | -28% |
 
 ## Migration Recommendations
@@ -287,12 +274,4 @@ These web-specific libraries were removed as they have no mobile equivalent:
 4. **Consider bundle size**: Mobile apps should minimize dependencies for faster downloads
 5. **Use native modules wisely**: Native modules require rebuilding the app, limiting OTA updates
 
-## Conclusion
-
-The conversion from web to mobile resulted in a significant reduction in dependencies (73% fewer packages) while maintaining all core functionality. The mobile app uses platform-appropriate libraries that provide better performance, native feel, and smaller bundle size compared to the original web application.
-
-The key principle in library selection was choosing React Native-native solutions over web-based alternatives, ensuring optimal performance and user experience on mobile devices.
-
 ---
-
-**Document prepared by Manus AI**
