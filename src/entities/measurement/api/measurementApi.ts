@@ -1,7 +1,7 @@
-import { Measurement, MeasurementDto, MeasurementResponseDto } from '../model/types';
-import { Sensor } from '@/entities/sensor';
-import { storage } from '@/shared/lib/storage';
-import { API_BASE_URL } from '@/shared/config/api';
+import {Measurement, MeasurementDto, MeasurementResponseDto} from '../model/types';
+import {Sensor} from '@/entities/sensor';
+import {storage} from '@/shared/lib/storage';
+import {API_BASE_URL} from '@/shared/config/api';
 
 export async function getMeasurements(sensors: Sensor[]): Promise<Measurement[]> {
   const token = await storage.getToken();
@@ -21,32 +21,29 @@ export async function getMeasurements(sensors: Sensor[]): Promise<Measurement[]>
   }
 
   const data: MeasurementResponseDto[] = await resp.json();
-  const mapped: Measurement[] = (Array.isArray(data) ? data : []).map((d) => {
-    const date = new Date(d.timestamp);
-    const sensor = sensors.find((s) => s.id === d.sensorId);
-    const hasTemperature = typeof d.temperature === 'number';
-    const hasHumidity = typeof d.humidity === 'number';
-    const temperature = hasTemperature ? d.temperature : 0;
-    const humidity = hasHumidity ? d.humidity : 0;
+    return (Array.isArray(data) ? data : []).map((d) => {
+      const date = new Date(d.timestamp);
+      const sensor = sensors.find((s) => s.id === d.sensorId);
+      const hasTemperature = typeof d.temperature === 'number';
+      const hasHumidity = typeof d.humidity === 'number';
+      const temperature = hasTemperature ? d.temperature : 0;
+      const humidity = hasHumidity ? d.humidity : 0;
 
-    return {
-      id: d.id,
-      sensorId: d.sensorId,
-      sensorName: sensor?.name ?? `Sensor ${d.sensorId}`,
-      sensorType: sensor?.type ?? 'outdoor',
-      temperature: temperature,
-      humidity: humidity,
-      timestamp: isNaN(date.getTime()) ? String(d.timestamp) : date.toLocaleString(),
-      date: isNaN(date.getTime()) ? new Date() : date,
-    };
+      return {
+          id: d.id,
+          sensorId: d.sensorId,
+          sensorName: sensor?.name ?? `Sensor ${d.sensorId}`,
+          sensorType: sensor?.type ?? 'outdoor',
+          temperature: temperature,
+          humidity: humidity,
+          timestamp: isNaN(date.getTime()) ? String(d.timestamp) : date.toLocaleString(),
+          date: isNaN(date.getTime()) ? new Date() : date,
+      };
   });
-
-  return mapped;
 }
 
 export async function createMeasurement(payload: MeasurementDto): Promise<any> {
   const token = await storage.getToken();
-  console.log(payload);
   const resp = await fetch(`${API_BASE_URL}/measurements`, {
     method: 'POST',
     headers: {

@@ -51,13 +51,19 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
   };
 
   // Chart helpers
-  const colors = ['#8b5cf6', '#3ca020', '#f59e0b', '#22c55e', '#ffffff', '#8b591b', '#ef4444', '#b51e0b', '#a51e6b', '#ffff2f'];
+  const colors = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#14b8a6', '#f43f5e', '#06b6d4', '#84cc16', '#a855f7'];
   const colorForSensorId = (id: number) => colors[Math.abs(id) % colors.length];
 
   const filteredSensors: Sensor[] = useMemo(() => {
     if (filterSensorType === 'all') return sensors;
-    return sensors.filter((s) => s.type === filterSensorType).slice(0, 10);
+    return sensors.filter((s) => s.type === filterSensorType);
   }, [filterSensorType, sensors]);
+
+  const filteredMeasurements: Measurement[] = useMemo(() => {
+    if (filterSensorType === 'all') return measurements;
+    const sensorIds = new Set(filteredSensors.map(s => s.id));
+    return measurements.filter(m => sensorIds.has(m.sensorId));
+  }, [measurements, filterSensorType, filteredSensors]);
 
   type Series = { id: number; name: string; data: { x: Date; y: number }[] };
 
@@ -68,7 +74,7 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
       if (m.temperature === undefined || m.temperature === null) continue;
       if (!filteredSensors.find((s) => s.id === m.sensorId)) continue;
       const arr = bySensor[m.sensorId] || (bySensor[m.sensorId] = []);
-      const xDate = m.date instanceof Date ? m.date : new Date(m.date as any);
+      const xDate = m.date;
       arr.push({ x: xDate, y: m.temperature });
     }
     return filteredSensors
@@ -89,7 +95,7 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
       if (m.humidity === undefined || m.humidity === null) continue;
       if (!filteredSensors.find((s) => s.id === m.sensorId)) continue;
       const arr = bySensor[m.sensorId] || (bySensor[m.sensorId] = []);
-      const xDate = m.date instanceof Date ? m.date : new Date(m.date as any);
+      const xDate = m.date;
       arr.push({ x: xDate, y: m.humidity });
     }
     return filteredSensors
@@ -201,7 +207,7 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
       )}
 
       <FlatList
-        data={measurements}
+        data={filteredMeasurements}
         renderItem={renderMeasurement}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
@@ -249,7 +255,15 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
                         <VictoryLine
                           key={s.name}
                           data={s.data}
-                          style={{ data: { stroke: colorForSensorId(s.id), strokeWidth: 2 } }}
+                          interpolation="monotoneX"
+                          style={{
+                            data: {
+                              stroke: colorForSensorId(s.id),
+                              strokeWidth: 3,
+                              strokeLinecap: "round",
+                              strokeLinejoin: "round"
+                            }
+                          }}
                         />
                       ) : null
                     )}
@@ -298,7 +312,15 @@ export default function MeasurementsTab({ sensors, canWrite }: MeasurementsTabPr
                         <VictoryLine
                           key={s.name}
                           data={s.data}
-                          style={{ data: { stroke: colorForSensorId(s.id), strokeWidth: 2 } }}
+                          interpolation="monotoneX"
+                          style={{
+                            data: {
+                              stroke: colorForSensorId(s.id),
+                              strokeWidth: 3,
+                              strokeLinecap: "round",
+                              strokeLinejoin: "round"
+                            }
+                          }}
                         />
                       ) : null
                     )}

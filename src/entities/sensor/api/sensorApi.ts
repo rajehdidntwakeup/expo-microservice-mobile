@@ -35,7 +35,6 @@ export async function createSensor(payload: {
   active: boolean;
 }): Promise<Sensor> {
   const token = await storage.getToken();
-  console.log(token);
   const resp = await fetch(`${API_BASE_URL}/sensors`, {
     method: 'POST',
     headers: {
